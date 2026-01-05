@@ -197,6 +197,43 @@ export const changePassword = asyncHandler(async (req, res) => {
   user.password = newPassword;
   await user.save({ validateBeforeSave: false });
 
-  return res.status(200)
-  .json(new ApiResponse(200,{},"Password changed successfully"))
+  return res
+    .status(200)
+    .json(new ApiResponse(200, {}, "Password changed successfully"));
 });
+
+export const getUserDetails = asyncHandler(asyncHandler, (req, res) => {
+  return res.status(200).json(200, req.user, "User fetched successfully");
+});
+
+export const updateUserDetails = asyncHandler(async (req, res) => {
+  const { fullName } = req.body;
+
+  const avatarLocalPath = req.files?.avatar[0].path;
+  const coverImageLocalPath = req.files?.coverImage[0].path;
+
+  if (!avatarLocalPath) {
+    throw new ApiError(400, "Avatar file is required");
+  }
+
+  const avatar = await uploadOnCloudinary(avatarLocalPath);
+  const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+
+  const user = await User.findById(req.user._id);
+
+  if (fullName) user.fullName = fullName;
+
+  if (avatar) user.avatar = avatar;
+
+  if (coverImage) user.coverImage = coverImage;
+
+  await user.save({ validateBeforeSave: false });
+
+  res
+    .status(200)
+    .json(new ApiResponse(200, req.user, "User updated successfully"));
+});
+
+export const deleteUser = asyncHandler(async(req,res)=>{
+   
+})
