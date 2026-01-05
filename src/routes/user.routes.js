@@ -7,7 +7,11 @@ import {
   changePassword,
   getUserDetails,
   updateUserDetails,
-  deleteUser
+  deleteUser,
+  getWatchHistory,
+  getUserChannelProfile
+  
+
 } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { authorize } from "../middlewares/auth.middleware.js";
@@ -49,5 +53,6 @@ userRouter.put(
 );
 userRouter.get('/me',authorize,getUserDetails);
 userRouter.delete('/delete',authorize,deleteUser);
-
+userRouter.get('/:username/channel',authorize, getUserChannelProfile);
+userRouter.get('/watch-history',authorize,getWatchHistory);
 export default userRouter;

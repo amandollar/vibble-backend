@@ -5,6 +5,7 @@ import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import generateAccessAndRefreshTokens from "../utils/GenerateToken..js";
 import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
 export const registerUser = asyncHandler(async (req, res) => {
   const { fullName, email, username, password } = req.body;
@@ -240,4 +241,145 @@ export const deleteUser = asyncHandler(async (req, res) => {
     .json(
       new ApiResponse(200, {}, "We don't allow to delete your account :) ")
     );
+});
+
+
+
+export const getUserChannelProfile = asyncHandler(async (req, res) => {
+  const { username } = req.params;
+
+  if (!username?.trim()) {
+    throw new ApiError(400, "Username is missing");
+  }
+  const channel = await User.aggregate([
+    // Stage 1: select the user by username (stored as lowercase)
+    {
+      $match: {
+        username: username.toLowerCase(),
+      },
+    },
+    // Stage 2: find documents in `subscriptions` where `channel` == this user's _id
+    // results are stored in `subscribers` array; each element typically has { subscriber, channel }
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "channel",
+        as: "subscribers",
+      },
+    },
+    // Stage 3: find subscriptions where this user is the `subscriber` (i.e., channels this user has subscribed to)
+    // results are stored in `subscribedTo`
+    {
+      $lookup: {
+        from: "subscriptions",
+        localField: "_id",
+        foreignField: "subscriber",
+        as: "subscribedTo",
+      },
+    },
+    // Stage 4: add computed fields
+    // - subscriberCount: number of documents in `subscribers`
+    // - channelSubscribedToCount: number of documents in `subscribedTo`
+    // - isSubscribed: boolean indicating if the current request user appears in `subscribers` as a `subscriber`
+    {
+      $addFields: {
+        subscriberCount: { $size: "$subscribers" },
+        channelSubscribedToCount: { $size: "$subscribedTo" },
+        isSubscribed: {
+          $cond: {
+            // $in checks whether req.user._id (a JS value) exists in the mapped list of subscriber ids
+            if: {
+              $in: [
+                req.user?._id,
+                {
+                  $map: {
+                    input: "$subscribers",
+                    as: "sub",
+                    in: "$$sub.subscriber",
+                  },
+                },
+              ],
+            },
+            then: true,
+            else: false,
+          },
+        },
+      },
+    },
+    // Stage 5: select only the public-facing fields for the channel profile
+    {
+      $project: {
+        fullName: 1,
+        username: 1,
+        subscriberCount: 1,
+        channelSubscribedToCount: 1,
+        isSubscribed: 1,
+        avatar: 1,
+        coverImage: 1,
+        email: 1,
+      },
+    },
+  ]);
+
+  if (!channel.length) {
+    throw new ApiError(404, "Channel not found");
+  }
+
+  res.status(200).json(
+    new ApiResponse(200, channel[0], "Channel profile fetched successfully")
+  );
+});
+
+
+export const getWatchHistory = asyncHandler(async (req, res) => {
+
+  const user = await User.aggregate([
+    // Stage 1: find the logged-in user's document
+    {
+      $match: {
+        _id: new mongoose.Types.ObjectId(req.user._id),
+      },
+    },
+    // Stage 2: join videos referenced in the user's `watchHistory` array
+    {
+      $lookup: {
+        from: "videos",
+        localField: "watchHistory",
+        foreignField: "_id",
+        as: "watchHistory",
+        pipeline: [
+          // For each matched video, embed a simplified `owner` object
+          {
+            $lookup: {
+              from: "users",
+              localField: "owner",
+              foreignField: "_id",
+              as: "owner",
+              pipeline: [
+                // Only keep the public-facing fields of the owner we want to return
+                {
+                  $project: {
+                    fullName: 1,
+                    username: 1,
+                    avatar: 1,
+                  },
+                },
+              ],
+            },
+          },
+          // Convert owner from an array (result of $lookup) to a single object
+          {
+            $addFields: {
+              owner: { $first: "$owner" },
+            },
+          },
+        ],
+      },
+    },
+  ]);
+
+  res.status(200).json(
+    new ApiResponse(200, user[0]?.watchHistory || [], "Watch history fetched")
+  );
 });
