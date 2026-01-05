@@ -3,24 +3,8 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { ApiError } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
-
-const generateAccessAndRefreshTokens = async (userId) => {
-  try {
-    const user = await User.findById(userId);
-    const accessToken = user.generateAccessToken();
-    const refreshToken = user.generateRefreshToken();
-
-    user.refreshToken = refreshToken;
-    await user.save({ validateBeforeSave: false });
-
-    return {
-      accessToken,
-      refreshToken,
-    };
-  } catch (error) {
-    throw new ApiError(500, "Someting wen wrong while generating tokens");
-  }
-};
+import generateAccessAndRefreshTokens from "../utils/GenerateToken..js";
+import jwt from "jsonwebtoken";
 
 export const registerUser = asyncHandler(async (req, res) => {
   const { fullName, email, username, password } = req.body;
@@ -127,7 +111,7 @@ export const loginUser = asyncHandler(async (req, res) => {
     );
 });
 
-export const logoutUser = asyncHandler(async (req,res) => {
+export const logoutUser = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(
     req.user._id,
     {
@@ -152,4 +136,35 @@ export const logoutUser = asyncHandler(async (req,res) => {
     .json(new ApiResponse(200, {}, "User logged out "));
 });
 
+export const refreshAccessToken = asyncHandler(async (req, res) => {
+  const refreshToken =
+    req.cookie.refreshAccessToken || req.body.refreshAccessToken;
 
+  if (!refreshToken) {
+    throw new ApiError(401, "Unauthorized request");
+  }
+
+  const decodedToken = jwt.verify(
+    refreshToken,
+    process.env.REFRESH_TOKEN_SECRET
+  );
+
+  const user = await User.findById(decodedToken?._id);
+
+  if (!user) {
+    throw new ApiError(404, "User not found");
+  }
+
+  if (refreshAccessToken !== user.refreshToken) {
+    throw new ApiError(401, "Refresh token invalid");
+  }
+
+  const options = {
+    httpOnly: true,
+    secure: true,
+  };
+
+  await generateAccessAndRefreshTokens(user._id)
+
+  
+});
