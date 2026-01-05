@@ -6,7 +6,8 @@ import {
   refreshAccessToken,
   changePassword,
   getUserDetails,
-  updateUserDetails
+  updateUserDetails,
+  deleteUser
 } from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
 import { authorize } from "../middlewares/auth.middleware.js";
@@ -47,5 +48,6 @@ userRouter.put(
   updateUserDetails
 );
 userRouter.get('/me',authorize,getUserDetails);
+userRouter.delete('/delete',authorize,deleteUser);
 
 export default userRouter;

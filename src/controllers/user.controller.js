@@ -229,11 +229,15 @@ export const updateUserDetails = asyncHandler(async (req, res) => {
 
   await user.save({ validateBeforeSave: false });
 
-  res
+  return res
     .status(200)
     .json(new ApiResponse(200, req.user, "User updated successfully"));
 });
 
-export const deleteUser = asyncHandler(async(req,res)=>{
-   
-})
+export const deleteUser = asyncHandler(async (req, res) => {
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, {}, "We don't allow to delete your account :) ")
+    );
+});
