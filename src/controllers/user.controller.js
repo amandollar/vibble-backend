@@ -137,15 +137,15 @@ export const logoutUser = asyncHandler(async (req, res) => {
 });
 
 export const refreshAccessToken = asyncHandler(async (req, res) => {
-  const refreshToken =
+  const inRefreshToken =
     req.cookie.refreshAccessToken || req.body.refreshAccessToken;
 
-  if (!refreshToken) {
+  if (!inRefreshToken) {
     throw new ApiError(401, "Unauthorized request");
   }
 
   const decodedToken = jwt.verify(
-    refreshToken,
+    inRefreshToken,
     process.env.REFRESH_TOKEN_SECRET
   );
 
@@ -155,8 +155,8 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
     throw new ApiError(404, "User not found");
   }
 
-  if (refreshAccessToken !== user.refreshToken) {
-    throw new ApiError(401, "Refresh token invalid");
+  if (inRefreshToken !== user.refreshToken) {
+    throw new ApiError(401, "Invalid Refresh Token");
   }
 
   const options = {
@@ -164,7 +164,14 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
     secure: true,
   };
 
-  await generateAccessAndRefreshTokens(user._id)
+  const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
+    user._id
+  );
 
-  
+  return res
+    .status(200)
+    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, options)
+    .json(new ApiResponse(200, { accessToken, refreshToken }));
 });
+
