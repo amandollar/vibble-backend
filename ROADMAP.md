@@ -17,13 +17,11 @@ The backend currently has:
 ### Priority: HIGH - Foundation Improvements
 
 #### 1.1 Fix Critical Bugs
-- [ ] Fix `GenerateToken..js` filename (remove double dot)
-- [ ] Add missing `ApiError` import in `GenerateToken..js`
-- [ ] Fix `getUserDetails` double `asyncHandler` wrapper
-- [ ] Fix `refreshAccessToken` typo (`req.cookie` → `req.cookies`)
-- [ ] Fix typo in user registration (`refreshTokenno` → `refreshToken`)
-- [ ] Fix `updateUserDetails` - should handle optional avatar/coverImage updates
-- [ ] Fix `getUserDetails` response format (incorrect ApiResponse usage)
+- [✅] Fix `getUserDetails` double `asyncHandler` wrapper
+- [✅] Fix `refreshAccessToken` typo (`req.cookie` → `req.cookies`)
+- [✅] Fix typo in user registration (`refreshTokenno` → `refreshToken`)
+- [✅] Fix `updateUserDetails` - should handle optional avatar/coverImage updates
+- [✅] Fix `getUserDetails` response format (incorrect ApiResponse usage)
 
 #### 1.2 Code Quality Improvements
 - [ ] Add input validation using Zod schemas (as per your preference)

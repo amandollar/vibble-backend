@@ -49,7 +49,7 @@ export const registerUser = asyncHandler(async (req, res) => {
   });
 
   const createdUser = await User.findById(user._id).select(
-    "-password -refreshTokenno"
+    "-password -refreshTokeno"
   );
 
   if (!createdUser) {
@@ -139,7 +139,7 @@ export const logoutUser = asyncHandler(async (req, res) => {
 
 export const refreshAccessToken = asyncHandler(async (req, res) => {
   const inRefreshToken =
-    req.cookie.refreshAccessToken || req.body.refreshAccessToken;
+    req.cookies.refreshAccessToken || req.body.refreshAccessToken;
 
   if (!inRefreshToken) {
     throw new ApiError(401, "Unauthorized request");
@@ -203,8 +203,8 @@ export const changePassword = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, {}, "Password changed successfully"));
 });
 
-export const getUserDetails = asyncHandler(asyncHandler, (req, res) => {
-  return res.status(200).json(200, req.user, "User fetched successfully");
+export const getUserDetails = asyncHandler((req, res) => {
+  return res.status(200).json(new ApiResponse(200,req.user,"User fetched successfully"));
 });
 
 export const updateUserDetails = asyncHandler(async (req, res) => {
