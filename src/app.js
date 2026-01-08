@@ -23,7 +23,7 @@ app.use(cookieParser());
 morganBody(app);
 
 
-app.get("/", (_req, res) => {
+app.get("/health", (_req, res) => {
   res.status(200).json({
     message: "Vibble v1 backend running",
   });
