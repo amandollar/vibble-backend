@@ -28,11 +28,11 @@ The backend currently has:
 - [ ] Create validation middleware for all endpoints
 - [ ] Add request rate limiting (express-rate-limit)
 - [ ] Improve error messages and error handling
-- [ ] Add request logging (morgan or winston)
+- [✅] Add request logging (morgan or winston)
 - [ ] Standardize API response formats
 
 #### 1.3 Environment & Configuration
-- [ ] Create `.env.example` file
+- [✅] Create `.env.example` file
 - [ ] Add environment variable validation on startup
 - [ ] Add configuration file for app settings
 - [ ] Document all required environment variables
