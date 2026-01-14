@@ -1,3 +1,5 @@
+//we are using supertest as client simulation and jest for test control flow
+
 import { describe, it, expect, beforeAll, afterAll, beforeEach } from "@jest/globals";
 import request from "supertest";
 import mongoose from "mongoose";
@@ -17,6 +19,7 @@ describe("User Routes Tests", () => {
   let refreshToken;
   let testAvatarPath;
 
+  //Runs before anything happens
   beforeAll(async () => {
     // Set up test environment variables if not set
     if (!process.env.ACCESS_TOKEN_SECRET) {
@@ -53,6 +56,7 @@ describe("User Routes Tests", () => {
     }
   });
 
+  //Runs After everythings is done
   afterAll(async () => {
     // Clean up test database
     await User.deleteMany({});
@@ -61,6 +65,7 @@ describe("User Routes Tests", () => {
     }
   });
 
+  //Runs before each it 
   beforeEach(async () => {
     // Clean up before each test
     await User.deleteMany({});
