@@ -208,10 +208,21 @@ export const getUserDetails = asyncHandler((req, res) => {
 });
 
 export const updateUserDetails = asyncHandler(async (req, res) => {
+
   const { fullName } = req.body;
 
-  const avatarLocalPath = req.files?.avatar[0].path;
-  const coverImageLocalPath = req.files?.coverImage[0].path;
+
+  let avatarLocalPath;
+  if(req.files.avatar){
+     avatarLocalPath = req.files?.avatar[0].path;
+  }
+
+  let coverImageLocalPath;
+  if(req.files.coverImage){
+    coverImageLocalPath = req.files?.coverImage[0].path;
+  }
+  
+  
 
   if (!avatarLocalPath) {
     throw new ApiError(400, "Avatar file is required");
@@ -239,10 +250,9 @@ export const deleteUser = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(
-      new ApiResponse(200, {}, "We don't allow to delete your account :) ")
+      new ApiResponse(200, {}, "Sorry we don't allow you to delete your account 😁")
     );
 });
-
 
 
 export const getUserChannelProfile = asyncHandler(async (req, res) => {
