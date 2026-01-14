@@ -1,4 +1,9 @@
 export default {
   testEnvironment: "node",
-  testMatch: ["**/tests/**/*.test.js"],
+  testMatch: ["**/test/**/*.test.js"],
+  transform: {},
+  extensionsToTreatAsEsm: [".js"],
+  moduleNameMapper: {
+    "^(\\.{1,2}/.*)\\.js$": "$1",
+  },
 };
