@@ -7,14 +7,10 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import mongoose from "mongoose";
 
 export const uploadVideo = asyncHandler(async (req, res) => {
-  const { title, description, duration } = req.body;
+  const { title, description} = req.body;
 
   if ([title, description].some((field) => field?.trim() === "")) {
     throw new ApiError(400, "Title and description are required");
-  }
-
-  if (!duration || isNaN(duration) || duration <= 0) {
-    throw new ApiError(400, "Valid video duration is required");
   }
 
   const videoLocalPath = req.files?.videoFile?.[0]?.path;
@@ -29,6 +25,7 @@ export const uploadVideo = asyncHandler(async (req, res) => {
 
   const videoFile = await uploadOnCloudinary(videoLocalPath);
   const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
+  const duration = videoFile.duration
 
   if (!videoFile) {
     throw new ApiError(500, "Failed to upload video file");
@@ -43,7 +40,7 @@ export const uploadVideo = asyncHandler(async (req, res) => {
     thumbnail: thumbnail.url,
     title,
     description,
-    duration: parseFloat(duration),
+    duration: Math.floor(duration),
     owner: req.user._id,
   });
 
