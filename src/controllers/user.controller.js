@@ -244,15 +244,18 @@ export const updateUserDetails = asyncHandler(async (req, res) => {
 });
 
 export const deleteUser = asyncHandler(async (req, res) => {
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(
-        200,
-        {},
-        "Sorry we don't allow you to delete your account 😁"
-      )
-    );
+    const options = {
+      httpOnly: true,
+      secure: true,
+    };
+
+    await User.findByIdAndDelete(req.user._id);
+
+    return res
+      .status(200)
+      .clearCookie("accessToken", options)
+      .clearCookie("refreshToken", options)
+      .json(new ApiResponse(200, {}, "User deleted successfully"));
 });
 
 export const getUserChannelProfile = asyncHandler(async (req, res) => {
