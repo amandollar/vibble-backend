@@ -35,7 +35,6 @@ export const registerUser = asyncHandler(async (req, res) => {
   const coverImage = await uploadOnCloudinary(coverImageLocalPath);
 
   if (!avatar) {
-    console.log("--------Files reached here----------------");
     throw new ApiError(400, "Avatar file is required");
   }
 
@@ -49,7 +48,7 @@ export const registerUser = asyncHandler(async (req, res) => {
   });
 
   const createdUser = await User.findById(user._id).select(
-    "-password -refreshTokeno"
+    "-password -refreshToken"
   );
 
   if (!createdUser) {
@@ -151,10 +150,7 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
 
   let decodedToken;
   try {
-    decodedToken = jwt.verify(
-      inRefreshToken,
-      process.env.REFRESH_TOKEN_SECRET
-    );
+    decodedToken = jwt.verify(inRefreshToken, process.env.REFRESH_TOKEN_SECRET);
   } catch (error) {
     throw new ApiError(401, "Invalid or expired refresh token");
   }
@@ -213,56 +209,51 @@ export const changePassword = asyncHandler(async (req, res) => {
 });
 
 export const getUserDetails = asyncHandler((req, res) => {
-  return res.status(200).json(new ApiResponse(200,req.user,"User fetched successfully"));
+  return res
+    .status(200)
+    .json(new ApiResponse(200, req.user, "User fetched successfully"));
 });
 
 export const updateUserDetails = asyncHandler(async (req, res) => {
-
   const { fullName } = req.body;
-
-
-  let avatarLocalPath;
-  if(req.files.avatar){
-     avatarLocalPath = req.files?.avatar[0].path;
-  }
-
-  let coverImageLocalPath;
-  if(req.files.coverImage){
-    coverImageLocalPath = req.files?.coverImage[0].path;
-  }
-  
-  
-
-  if (!avatarLocalPath) {
-    throw new ApiError(400, "Avatar file is required");
-  }
-
-  const avatar = await uploadOnCloudinary(avatarLocalPath);
-  const coverImage = await uploadOnCloudinary(coverImageLocalPath);
-
   const user = await User.findById(req.user._id);
+  
+  if(fullName)user.fullName = fullName;
 
-  if (fullName) user.fullName = fullName;
+  const avatarFile = req.files?.avatar?.[0];
+  if (avatarFile?.path) {
+    const avatar = await uploadOnCloudinary(avatarFile.path);
+    if (!avatar) throw new ApiError(500, "Failed to Upload Avatar");
+    user.avatar = avatar.url;
+  }
 
-  if (avatar) user.avatar = avatar;
-
-  if (coverImage) user.coverImage = coverImage;
+  const coverFile = req.files?.coverImage?.[0];
+  if (coverFile?.path) {
+    const coverImage = await uploadOnCloudinary(coverFile.path);
+    if (!coverImage) throw new ApiError(500, "Failed to upload Cover Image");
+    user.coverImage = coverImage.url;
+  }
 
   await user.save({ validateBeforeSave: false });
 
+  const updatedUser = await User.findById(user._id);
+
   return res
     .status(200)
-    .json(new ApiResponse(200, req.user, "User updated successfully"));
+    .json(new ApiResponse(200, updatedUser, "User updated successfully"));
 });
 
 export const deleteUser = asyncHandler(async (req, res) => {
   return res
     .status(200)
     .json(
-      new ApiResponse(200, {}, "Sorry we don't allow you to delete your account 😁")
+      new ApiResponse(
+        200,
+        {},
+        "Sorry we don't allow you to delete your account 😁"
+      )
     );
 });
-
 
 export const getUserChannelProfile = asyncHandler(async (req, res) => {
   const { username } = req.params;
@@ -345,14 +336,14 @@ export const getUserChannelProfile = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Channel not found");
   }
 
-  res.status(200).json(
-    new ApiResponse(200, channel[0], "Channel profile fetched successfully")
-  );
+  res
+    .status(200)
+    .json(
+      new ApiResponse(200, channel[0], "Channel profile fetched successfully")
+    );
 });
 
-
 export const getWatchHistory = asyncHandler(async (req, res) => {
-
   const user = await User.aggregate([
     // Stage 1: find the logged-in user's document
     {
@@ -398,7 +389,9 @@ export const getWatchHistory = asyncHandler(async (req, res) => {
     },
   ]);
 
-  res.status(200).json(
-    new ApiResponse(200, user[0]?.watchHistory || [], "Watch history fetched")
-  );
+  res
+    .status(200)
+    .json(
+      new ApiResponse(200, user[0]?.watchHistory || [], "Watch history fetched")
+    );
 });
