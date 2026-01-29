@@ -1,6 +1,13 @@
 //we are using supertest as client simulation and jest for test control flow
 
-import { describe, it, expect, beforeAll, afterAll, beforeEach } from "@jest/globals";
+import {
+  describe,
+  it,
+  expect,
+  beforeAll,
+  afterAll,
+  beforeEach,
+} from "@jest/globals";
 import request from "supertest";
 import mongoose from "mongoose";
 import { app } from "../src/app.js";
@@ -23,13 +30,15 @@ describe("User Routes Tests", () => {
   beforeAll(async () => {
     // Set up test environment variables if not set
     if (!process.env.ACCESS_TOKEN_SECRET) {
-      process.env.ACCESS_TOKEN_SECRET = "test-access-token-secret-key-for-testing";
+      process.env.ACCESS_TOKEN_SECRET =
+        "test-access-token-secret-key-for-testing";
     }
     if (!process.env.REFRESH_TOKEN_SECRET) {
-      process.env.REFRESH_TOKEN_SECRET = "test-refresh-token-secret-key-for-testing";
+      process.env.REFRESH_TOKEN_SECRET =
+        "test-refresh-token-secret-key-for-testing";
     }
-    if (!process.env.ACESS_TOKEN_EXPIRY) {
-      process.env.ACESS_TOKEN_EXPIRY = "1d";
+    if (!process.env.ACCESS_TOKEN_EXPIRY) {
+      process.env.ACCESS_TOKEN_EXPIRY = "1d";
     }
     if (!process.env.REFRESH_TOKEN_EXPIRY) {
       process.env.REFRESH_TOKEN_EXPIRY = "10d";
@@ -37,14 +46,17 @@ describe("User Routes Tests", () => {
 
     // Connect to test database
     if (mongoose.connection.readyState === 0) {
-      await mongoose.connect(process.env.MONGODB_URI || "mongodb://localhost:27017", {
-        dbName: "vibble-test-db",
-      });
+      await mongoose.connect(
+        process.env.MONGODB_URI || "mongodb://localhost:27017",
+        {
+          dbName: "vibble-test-db",
+        }
+      );
     }
 
     // Setup test avatar file path
     testAvatarPath = path.join(__dirname, "../public/temp/test/avatar.jpg");
-    
+
     // Ensure test file exists
     const testDir = path.dirname(testAvatarPath);
     if (!fs.existsSync(testDir)) {
@@ -65,7 +77,7 @@ describe("User Routes Tests", () => {
     }
   });
 
-  //Runs before each it 
+  //Runs before each it
   beforeEach(async () => {
     // Clean up before each test
     await User.deleteMany({});
@@ -84,12 +96,10 @@ describe("User Routes Tests", () => {
     });
 
     it("should login user with email successfully", async () => {
-      const response = await request(app)
-        .post("/api/v1/users/login")
-        .send({
-          email: "login@example.com",
-          password: "password123",
-        });
+      const response = await request(app).post("/api/v1/users/login").send({
+        email: "login@example.com",
+        password: "password123",
+      });
 
       expect(response.statusCode).toBe(200);
       expect(response.body.success).toBe(true);
@@ -100,12 +110,10 @@ describe("User Routes Tests", () => {
     });
 
     it("should login user with username successfully", async () => {
-      const response = await request(app)
-        .post("/api/v1/users/login")
-        .send({
-          username: "logintest",
-          password: "password123",
-        });
+      const response = await request(app).post("/api/v1/users/login").send({
+        username: "logintest",
+        password: "password123",
+      });
 
       expect(response.statusCode).toBe(200);
       expect(response.body.success).toBe(true);
@@ -114,35 +122,29 @@ describe("User Routes Tests", () => {
     });
 
     it("should return 400 if neither email nor username provided", async () => {
-      const response = await request(app)
-        .post("/api/v1/users/login")
-        .send({
-          password: "password123",
-        });
+      const response = await request(app).post("/api/v1/users/login").send({
+        password: "password123",
+      });
 
       expect(response.statusCode).toBe(400);
       expect(response.body.success).toBe(false);
     });
 
     it("should return 404 if user does not exist", async () => {
-      const response = await request(app)
-        .post("/api/v1/users/login")
-        .send({
-          email: "nonexistent@example.com",
-          password: "password123",
-        });
+      const response = await request(app).post("/api/v1/users/login").send({
+        email: "nonexistent@example.com",
+        password: "password123",
+      });
 
       expect(response.statusCode).toBe(404);
       expect(response.body.success).toBe(false);
     });
 
     it("should return 401 if password is incorrect", async () => {
-      const response = await request(app)
-        .post("/api/v1/users/login")
-        .send({
-          email: "login@example.com",
-          password: "wrongpassword",
-        });
+      const response = await request(app).post("/api/v1/users/login").send({
+        email: "login@example.com",
+        password: "wrongpassword",
+      });
 
       expect(response.statusCode).toBe(401);
       expect(response.body.success).toBe(false);
@@ -215,11 +217,9 @@ describe("User Routes Tests", () => {
     });
 
     it("should refresh access token successfully with body", async () => {
-      const response = await request(app)
-        .post("/api/v1/users/refresh")
-        .send({
-          refreshAccessToken: refreshToken,
-        });
+      const response = await request(app).post("/api/v1/users/refresh").send({
+        refreshAccessToken: refreshToken,
+      });
 
       expect(response.statusCode).toBe(200);
       expect(response.body.success).toBe(true);
@@ -264,9 +264,8 @@ describe("User Routes Tests", () => {
 
       // Verify new password works
       const updatedUser = await User.findById(testUser._id);
-      const isNewPasswordCorrect = await updatedUser.isPasswordCorrect(
-        "newpassword123"
-      );
+      const isNewPasswordCorrect =
+        await updatedUser.isPasswordCorrect("newpassword123");
       expect(isNewPasswordCorrect).toBe(true);
     });
 

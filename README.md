@@ -104,12 +104,14 @@ vibble-backend/
 ### Installation Steps
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd vibble-backend
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
@@ -119,6 +121,7 @@ vibble-backend/
    - See [Environment Variables](#environment-variables) section for required variables
 
 4. **Start the development server**
+
    ```bash
    npm start
    ```
@@ -142,7 +145,7 @@ MONGODB_URI=mongodb://localhost:27017
 # JWT Secrets
 ACCESS_TOKEN_SECRET=your_access_token_secret_here
 REFRESH_TOKEN_SECRET=your_refresh_token_secret_here
-ACESS_TOKEN_EXPIRY=1d
+ACCESS_TOKEN_EXPIRY=1d
 REFRESH_TOKEN_EXPIRY=10d
 
 # Cloudinary Configuration
@@ -154,28 +157,30 @@ CLOUDINARY_API_SECRET=your_api_secret
 ## 📡 API Endpoints
 
 ### Base URL
+
 ```
 http://localhost:3000/api/v1
 ```
 
 ### User Routes (`/api/v1/users`)
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/register` | Register a new user | ❌ |
-| POST | `/login` | Login user | ❌ |
-| POST | `/logout` | Logout user | ✅ |
-| POST | `/refresh` | Refresh access token | ❌ |
-| PATCH | `/change-password` | Change user password | ✅ |
-| GET | `/me` | Get current user details | ✅ |
-| PUT | `/update` | Update user profile | ✅ |
-| DELETE | `/delete` | Delete user account | ✅ |
-| GET | `/:username/channel` | Get channel profile | ✅ |
-| GET | `/watch-history` | Get user watch history | ✅ |
+| Method | Endpoint             | Description              | Auth Required |
+| ------ | -------------------- | ------------------------ | ------------- |
+| POST   | `/register`          | Register a new user      | ❌            |
+| POST   | `/login`             | Login user               | ❌            |
+| POST   | `/logout`            | Logout user              | ✅            |
+| POST   | `/refresh`           | Refresh access token     | ❌            |
+| PATCH  | `/change-password`   | Change user password     | ✅            |
+| GET    | `/me`                | Get current user details | ✅            |
+| PUT    | `/update`            | Update user profile      | ✅            |
+| DELETE | `/delete`            | Delete user account      | ✅            |
+| GET    | `/:username/channel` | Get channel profile      | ✅            |
+| GET    | `/watch-history`     | Get user watch history   | ✅            |
 
 ### Request/Response Examples
 
 #### Register User
+
 ```http
 POST /api/v1/users/register
 Content-Type: multipart/form-data
@@ -191,6 +196,7 @@ Content-Type: multipart/form-data
 ```
 
 #### Login User
+
 ```http
 POST /api/v1/users/login
 Content-Type: application/json
@@ -202,6 +208,7 @@ Content-Type: application/json
 ```
 
 #### Get Current User
+
 ```http
 GET /api/v1/users/me
 Authorization: Bearer <access_token>
@@ -226,6 +233,7 @@ The API uses JWT (JSON Web Tokens) for authentication:
 ## 🗄 Database Models
 
 ### User Model
+
 - `username` (unique, indexed, lowercase)
 - `email` (unique, lowercase)
 - `fullName` (indexed)
@@ -237,6 +245,7 @@ The API uses JWT (JSON Web Tokens) for authentication:
 - `timestamps` (createdAt, updatedAt)
 
 ### Video Model
+
 - `videoFile` (Cloudinary URL)
 - `thumbnail` (Cloudinary URL)
 - `title`
@@ -248,6 +257,7 @@ The API uses JWT (JSON Web Tokens) for authentication:
 - `timestamps`
 
 ### Subscription Model
+
 - `subscriber` (User reference - who subscribes)
 - `channel` (User reference - channel being subscribed to)
 - `timestamps`
@@ -261,6 +271,7 @@ The API uses a centralized error handling system:
 - **asyncHandler**: Wrapper for async route handlers
 
 ### Error Response Format
+
 ```json
 {
   "success": false,
@@ -270,6 +281,7 @@ The API uses a centralized error handling system:
 ```
 
 ### Success Response Format
+
 ```json
 {
   "success": true,
@@ -306,4 +318,3 @@ ISC License
 
 **Author**: Aman Sharma  
 **Version**: 1.0.0
-

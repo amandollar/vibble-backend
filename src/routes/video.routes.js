@@ -22,7 +22,7 @@ videoRouter.get("/", getAllVideos);
 videoRouter.get("/search", searchVideos);
 videoRouter.get("/trending", getTrendingVideos);
 videoRouter.get("/:videoId", getVideoById);
-videoRouter.post("/:videoId/view", incrementVideoViews);
+videoRouter.post("/:videoId/view", authorize, incrementVideoViews);
 
 // Protected
 videoRouter.post(

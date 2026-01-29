@@ -1,8 +1,6 @@
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
 
-
-
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -18,11 +16,10 @@ const uploadOnCloudinary = async (localFilePath) => {
     fs.unlinkSync(localFilePath);
     return response;
   } catch (err) {
-    console.log(err)
+    console.log(err);
     fs.unlinkSync(localFilePath);
     return null;
   }
 };
 
-
-export {uploadOnCloudinary};
+export { uploadOnCloudinary };
